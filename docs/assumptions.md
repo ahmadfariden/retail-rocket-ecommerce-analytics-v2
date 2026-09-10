@@ -1,5 +1,27 @@
 # Assumptions, Definitions & Limitations
 
+## EDA Findings (Milestone 08)
+- **"Uncategorized" is the single largest category bucket** by unique visitor count (412,222
+  visitors — larger than any real category). Must be shown prominently in dashboard, not hidden.
+- **Price outlier confirmed as data error — WINSORIZED (LOCKED):**
+  - `max_price` = 1,199,999,999.88, appearing as an **exact duplicate 4 times** — confirms
+    placeholder/error value, not a real price. Other extreme values follow suspicious round-number
+    patterns (600,612,000 / 424,524,000, etc.)
+  - 1,709 items (1%) fall above P99 (1,142,145.37)
+  - **Decision: keep `price_raw` (untouched, for audit) + add `price_analytics` (capped at P99)**
+    in `dim_item`. All aggregations/visualizations (avg price, price band, segment) must use
+    `price_analytics`, never `price_raw`, to avoid distortion from placeholder values.
+- **Item-level conversion rates (top items, cart-abandonment) — REVISED to unique-visitor basis.**
+  Raw event-count basis initially showed implausible rates (one item at 50%+ view→transaction),
+  likely inflated by repeat purchases (same visitor buying the same item multiple times without
+  re-viewing). Unique-visitor basis gives more realistic, comparable rates across items.
+- Segment behavior: avg sessions per visitor increases with funnel depth — Browser-only 1.21,
+  Cart-adder 1.84, Buyer 2.79 sessions — buyers engage across more return visits, as expected.
+- **Timezone note:** `event_datetime` displays in the local system timezone (+07 / WIB) when
+  queried, not necessarily the dataset's original locale. Hour-of-day activity patterns are
+  relative/comparable but the absolute hour label should not be over-interpreted as the
+  visitor's true local time.
+
 ## Data Transformation Findings (Milestone 07)
 - Session mapping: gap > 30 minutes between events (same visitor) = new session (standard
   e-commerce definition). Result: 1,731,690 sessions, avg 1.49 events/session
