@@ -33,10 +33,6 @@ CAST(REPLACE(value, 'n', '') AS DOUBLE) AS price
 | raw_category_tree | 1,669 |
 | raw_item_properties | 20,275,902 |
 
-## Bot / Anomaly Traffic Filtering
-- Metode: threshold jumlah event per `visitorid`
-- Threshold: TBD — isi setelah Data Profiling (milestone 03)
-
 ## KPI Definitions
 | KPI | Formula |
 |---|---|
