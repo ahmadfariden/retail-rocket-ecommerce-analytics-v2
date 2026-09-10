@@ -1,5 +1,19 @@
 # Assumptions, Definitions & Limitations
 
+## Data Profiling Findings
+- Total rows: 2,756,101 | Distinct rows: 2,755,641 → **460 duplicate rows** (to be dropped in milestone 04)
+- Event distribution: view 2,664,312 | addtocart 69,332 | transaction 22,457
+- `missing_transactionid` = 2,733,644 — expected, only populated when event = transaction (not a data quality issue)
+
+## Bot / Anomaly Traffic Filtering (LOCKED)
+- Distribution of events per visitor: min 1, median 1, avg 1.96, p95=5, p99=13, p999=55, max=7757
+- **Threshold chosen: p999 (>55 events)** — not p99
+- Reasoning: p99 (>13 events) would exclude 12,712 visitors / 465,283 events (~16.9% of total),
+  too aggressive — visitors with 13-50 events are plausibly active shoppers, not bots.
+  p999 targets only extreme outliers (clear gap: top visitor 7,757 events vs 2nd place 4,328).
+- **Final result: 1,037 visitors excluded, 203,761 events removed (7.39% of total events)**
+- Applied in milestone 04 (Data Cleaning): exclude visitors with n_events > 55
+
 ## Property Code Mapping (CONFIRMED)
 | Property Code | Representasi | Bukti |
 |---|---|---|
