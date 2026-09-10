@@ -21,6 +21,27 @@
   - **transaction: 22,457 → 22,457 (0% loss)** — fully preserved
   - Total clean rows: 2,572,482 (raw 2,756,101 minus 460 duplicates minus 183,619 bot views)
 
+## Data Validation Findings (Milestone 05)
+- Completeness: 0 missing values in `clean_events` (timestamp, visitorid, itemid)
+- Orphan transactions (no prior view/addtocart from same visitor+item): 1,029 / 22,457 (4.58%)
+  — accepted as normal data gap (e.g. tracking started mid-session), not investigated further
+- Date range: 2015-05-03 to 2015-09-18 (138 days)
+- **Funnel reconciliation (unique visitor basis):** view→cart 2.69%, cart→transaction 31.07%,
+  overall 0.84% — consistent with typical e-commerce benchmarks, used as baseline KPI
+
+## Category Coverage (LOCKED)
+- 21.15% of items (48,671 / 230,133) in `clean_events` have no `categoryid` in item_properties
+- Investigated distribution across event types to check for concentration risk:
+  | | % of items | % of events | % of transactions |
+  |---|---|---|---|
+  | Uncategorized | 21.15% | 9.53% | **2.12%** |
+- Pattern decreases from item → event → transaction level = classic long-tail (rarely-viewed
+  items lack metadata, not high-value ones). No red flag — transaction concentration in
+  uncategorized items is proportionally lower than their item share.
+- **Decision: bucket missing categoryid as "Uncategorized"** in category-based marts/visuals.
+  Keeps all traffic visible, stays transparent, totals still reconcile.
+  Category-level analysis coverage ≈78.85% of items (or note "9.53% of events uncategorized").
+
 ## Property Code Mapping (CONFIRMED)
 | Property Code | Representasi | Bukti |
 |---|---|---|
