@@ -1,5 +1,19 @@
 # Assumptions, Definitions & Limitations
 
+## Data Transformation Findings (Milestone 07)
+- Session mapping: gap > 30 minutes between events (same visitor) = new session (standard
+  e-commerce definition). Result: 1,731,690 sessions, avg 1.49 events/session
+- **Visitor segmentation reconciliation: PASSED** — 1,407,184 total visitors = 1,368,319
+  Browser-only + 27,146 Cart-adder + 11,719 Buyer (exact match, LOCKED rule confirmed correct)
+- Time-to-convert: median 20.0 min, average 5,268.6 min (~3.7 days) — large gap is expected
+  (long-tail: most buyers convert fast, a minority convert days/months later). **Use median**,
+  not average, for dashboard reporting — average is skewed by outliers.
+- **Known side effect of view-only bot filter:** only 10,698 / 11,719 Buyers (91.3%) have a
+  valid time-to-convert calculation. The gap (1,021 visitors) likely occurs because some
+  buyers were also bot-flagged (>55 total events) and had their earliest `view` events
+  excluded by the milestone 04 filter, so their true "first view" timestamp is missing.
+  Documented as a limitation — time-to-convert mart will only cover the 10,698 with complete data.
+
 ## Data Modeling Findings (Milestone 06 — Star Schema)
 - Category tree flattening: 25 root categories, max depth 6, 0 categories failed to flatten (no cycles/orphans)
 - `fact_events` built via **ASOF JOIN** (point-in-time match) for categoryid, available, price —
