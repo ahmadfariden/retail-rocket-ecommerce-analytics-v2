@@ -1,5 +1,22 @@
 # Assumptions, Definitions & Limitations
 
+## Data Modeling Findings (Milestone 06 — Star Schema)
+- Category tree flattening: 25 root categories, max depth 6, 0 categories failed to flatten (no cycles/orphans)
+- `fact_events` built via **ASOF JOIN** (point-in-time match) for categoryid, available, price —
+  attaches the property value valid *at the time each event occurred*, not just "ever known"
+- fact_events row count: 2,572,482 — matches clean_events exactly (no row loss/duplication from joins)
+- **Point-in-time category gap: 23.78%** of fact_events rows have no categoryid snapshot at event
+  time (vs 9.53% using the looser "item ever has categoryid" definition in milestone 05) —
+  expected: some items get their categoryid logged *after* they were first viewed
+- Concentration check by event type (no red flag — fairly even, not concentrated in transactions):
+  | event | % no category |
+  |---|---|
+  | view | 24.00% |
+  | addtocart | 17.29% |
+  | transaction | 18.76% |
+- **Decision: keep categoryid = -1 ("Uncategorized") bucket**, same approach as milestone 05 lock
+- Star schema tables: `fact_events`, `dim_item`, `dim_category`, `dim_visitor`, `dim_time` (139 days)
+
 ## Data Profiling Findings
 - Total rows: 2,756,101 | Distinct rows: 2,755,641 → **460 duplicate rows** (to be dropped in milestone 04)
 - Event distribution: view 2,664,312 | addtocart 69,332 | transaction 22,457
