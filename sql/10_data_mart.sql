@@ -63,14 +63,16 @@ CREATE OR REPLACE TABLE mart_item_performance AS
 WITH item_stats AS (
     SELECT
         itemid,
+        COALESCE(MAX(root_category), -1) AS root_category,
         COUNT(DISTINCT visitorid) FILTER (WHERE event = 'view') AS visitors_view,
         COUNT(DISTINCT visitorid) FILTER (WHERE event = 'addtocart') AS visitors_addtocart,
         COUNT(DISTINCT visitorid) FILTER (WHERE event = 'transaction') AS visitors_transaction
-    FROM fact_events
+    FROM vw_events_with_root_category
     GROUP BY itemid
 )
 SELECT
     s.itemid,
+    s.root_category,
     s.visitors_view,
     s.visitors_addtocart,
     s.visitors_transaction,
@@ -86,16 +88,21 @@ COPY mart_item_performance TO 'data/processed/mart_item_performance.parquet' (FO
 
 -- ============================================================
 -- MART 3b: mart_category_performance -> Halaman 3 (Product & Category Performance)
+-- REVISED: tambah categoryid + depth, bukan cuma root_category, supaya drill-down
+-- root -> sub-kategori bisa dipakai di Power BI (hierarchy: root_category -> categoryid)
 -- ============================================================
 CREATE OR REPLACE TABLE mart_category_performance AS
 SELECT
-    root_category,
-    COUNT(DISTINCT itemid) AS n_items,
-    COUNT(DISTINCT visitorid) FILTER (WHERE event = 'view') AS visitors_view,
-    COUNT(DISTINCT visitorid) FILTER (WHERE event = 'addtocart') AS visitors_cart,
-    COUNT(DISTINCT visitorid) FILTER (WHERE event = 'transaction') AS visitors_txn
-FROM vw_events_with_root_category
-GROUP BY root_category
+    e.categoryid,
+    COALESCE(dc.root_category, -1) AS root_category,
+    COALESCE(dc.depth, 0) AS depth,
+    COUNT(DISTINCT e.itemid) AS n_items,
+    COUNT(DISTINCT e.visitorid) FILTER (WHERE e.event = 'view') AS visitors_view,
+    COUNT(DISTINCT e.visitorid) FILTER (WHERE e.event = 'addtocart') AS visitors_cart,
+    COUNT(DISTINCT e.visitorid) FILTER (WHERE e.event = 'transaction') AS visitors_txn
+FROM fact_events e
+LEFT JOIN dim_category dc ON e.categoryid = dc.categoryid
+GROUP BY e.categoryid, root_category, depth
 ORDER BY visitors_view DESC;
 
 COPY mart_category_performance TO 'data/processed/mart_category_performance.parquet' (FORMAT PARQUET);
@@ -171,3 +178,10 @@ UNION ALL SELECT 'mart_activity_by_hour', COUNT(*) FROM mart_activity_by_hour
 UNION ALL SELECT 'mart_data_quality_summary', COUNT(*) FROM mart_data_quality_summary;
 
 -- TODO: 9 file parquet siap di data/processed/, tinggal di-load ke Power BI
+
+-- ============================================================
+-- MART 1b: kpi_summary -> Halaman 1 (Overview) -- KPI card angka headline
+-- (Ditambahkan belakangan: dibutuhkan supaya Total Unique Visitors & Overall
+-- Conversion Rate akurat, tidak double-count seperti kalau SUM harian)
+-- ============================================================
+COPY kpi_summary TO 'data/processed/kpi_summary.parquet' (FORMAT PARQUET);
