@@ -1,5 +1,19 @@
 # Assumptions, Definitions & Limitations
 
+## Dashboard Scope Decision: Category Drill-down (LOCKED)
+- `mart_category_performance` and `mart_funnel_by_category` operate at **root-category level
+  only**. Sub-category hierarchy (available in `category_flat` with `depth`) was not extended
+  into these marts.
+- **Decision: no drill-down to sub-category in this dashboard.** Root category already answers
+  the core business question (which category performs best across the funnel). Rebuilding marts
+  + visuals for sub-category drill-down was judged not worth the effort relative to value added
+  for this portfolio scope.
+- Dashboard note (for Halaman 5 / Data Quality page): "Category analysis is performed at the
+  root-category level. Sub-category hierarchy was not included in the analytical mart and is
+  therefore outside the scope of this dashboard."
+- Revisit only if: Halaman 3 feels too sparse, or category insight proves insufficiently granular
+  after full dashboard review — then build `mart_category_performance_v2` with subcategory column.
+
 ## EDA Findings (Milestone 08)
 - **"Uncategorized" is the single largest category bucket** by unique visitor count (412,222
   visitors — larger than any real category). Must be shown prominently in dashboard, not hidden.
