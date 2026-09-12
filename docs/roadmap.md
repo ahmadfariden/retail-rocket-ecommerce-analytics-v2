@@ -1,5 +1,5 @@
 # Roadmap & Checklist Portofolio Data Analysis
-## Retail Rocket Recommender System Dataset — DuckDB + Power BI (Revisi v2)
+## Retail Rocket Recommender System Dataset — DuckDB + Power BI (Revisi v4)
 
 > Revisi dari roadmap awal, disesuaikan dengan karakteristik spesifik dataset Retail Rocket:
 > tidak ada revenue eksplisit, struktur item_properties berbentuk EAV, ada kemungkinan bot traffic,
@@ -191,6 +191,19 @@
   3. Product & Category Performance — top item (view vs transaction, dengan threshold 10 views), top kategori + drill-down, cart-abandonment
   4. Visitor Behavior & Segmentation — one-time vs repeat, segmentasi Buyer/Cart-adder/Browser-only (mutually exclusive), activity by hour/day
   5. Data Quality & Methodology — metrik kuantitatif dari `mart_data_quality_summary` + text box statis untuk assumptions/KPI definitions/limitations
+- **On-Canvas Insight Box per Halaman** *(baru, LOCKED)* — bukan cuma insight di dokumen
+  terpisah (`docs/insights.md`), tapi ditaruh langsung sebagai text box di sheet dashboard,
+  format konsisten: **Finding → Root Cause → Action → Expected Impact**.
+  - **Wajib** di Halaman 2, 3, 4 — tiap halaman ini sudah punya temuan yang cukup kuat/spesifik
+    untuk insight yang genuine (bukan filler)
+  - **Opsional** di Halaman 1 — cukup 1 insight kecil kalau ada anomali jelas di trend
+    (mis. lonjakan di awal periode), tidak wajib dipaksakan
+  - **Tidak diperlukan** di Halaman 5 — ini metodologi/data quality, bukan business insight
+  - Prinsip: lebih baik 3 insight tajam berbasis bukti kuat daripada insight generik di
+    semua chart — insight yang dipaksakan justru menurunkan kualitas keseluruhan
+  - Insight antar halaman sebaiknya **saling terhubung** kalau relevan (mis. insight di
+    Halaman 4 merujuk balik ke temuan di Halaman 3) — menunjukkan analisis lintas-halaman
+    yang koheren, bukan temuan yang berdiri sendiri per chart
 - KPI Monitoring
 - Drill-down Analysis
 - Interactive Dashboard
@@ -202,6 +215,9 @@
 - Root Cause Analysis
 - Business Impact
 - Actionable Recommendation
+- **Dokumentasikan insight yang sama dengan on-canvas box di Halaman 12** ke
+  `docs/insights.md` — versi lengkap/lebih detail dari yang muat di text box dashboard,
+  supaya ada satu sumber kebenaran yang bisa dirujuk terpisah dari file .pbix
 - **Develop Mart Kecil + Export Parquet** *(baru)* — sebelum push, buat tabel mart ringkas dari hasil tahap ini & export ke parquet kecil (`data/processed/milestone_XX.parquet`); file CSV mentah tetap jadi source of truth, tidak diubah/tidak ikut diproses ulang
 - ✅ **Checkpoint:** `git commit -m "docs: add insights and business recommendations"` → push
 
@@ -248,3 +264,6 @@
 | — (v3) | **Baru:** pola kerja iteratif 7 langkah (tulis query → jalankan → investigasi
      kalau janggal → putuskan → revisi → dokumentasikan → commit) ditulis eksplisit sebagai
      metode baku, bukan cuma dipraktikkan tanpa didefinisikan |
+| 12-13 (v4) | **Baru:** on-canvas insight box (Finding → Root Cause → Action → Expected
+     Impact) — wajib di Halaman 2/3/4, opsional di Halaman 1, tidak perlu di Halaman 5;
+     didokumentasikan juga ke `docs/insights.md` sebagai versi lengkap |
